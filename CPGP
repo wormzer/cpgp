@@ -1,6 +1,8 @@
 #!/bin/bash
 
 mkdir -p ~/.ssh || exit 1
+cat - > ~/.ssh/config <<< "StrictHostKeyChecking no"
+cat - >> ~/.ssh/config <<< "UserKnownHostsFile=/dev/null"
 
 echo "[CPGP] Pulling down private key from 172.17.42.1"
 
