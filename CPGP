@@ -1,0 +1,27 @@
+#!/bin/bash
+
+mkdir -p ~/.ssh || exit 1
+
+echo "[CPGP] Pulling down private key from 172.17.42.1"
+
+nc 172.17.42.1 14242 > ~/.ssh/id_rsa
+chmod -R go-rwx ~/.ssh
+
+if which ssh-keygen > /dev/null
+then
+	ssh-keygen -y -f ~/.ssh/id_rsa > ~/.ssh/id_rsa.pub || exit 1
+
+	echo -n "[CPGP] Pulled down key "
+	ssh-keygen -lf ~/.ssh/id_rsa.pub | cut -d\  -f2 || exit 1
+fi
+
+echo "[CPGP] Running command \`$@'"
+eval $@
+result_code=$?
+
+[ $result_code -eq 0 ] || echo "[CPGP] Command failed"
+
+echo "[CPGP] Purging key"
+rm -rf ~/.ssh
+
+exit $result_code
