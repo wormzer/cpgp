@@ -2,12 +2,19 @@
 
 mkdir -p ~/.ssh || exit 1
 cat - > ~/.ssh/config <<< "StrictHostKeyChecking no"
-cat - >> ~/.ssh/config <<< "UserKnownHostsFile=/dev/null"
 
 echo "[CPGP] Pulling down private key from 172.17.42.1"
 
-nc 172.17.42.1 14242 > ~/.ssh/id_rsa
+curl -s http://172.17.42.1:14243/id_rsa > ~/.ssh/id_rsa
 chmod -R go-rwx ~/.ssh
+
+if which ssh-keygen > /dev/null
+then
+	ssh-keygen -y -f ~/.ssh/id_rsa > ~/.ssh/id_rsa.pub || exit 1
+
+	echo -n "[CPGP] Pulled down key "
+	ssh-keygen -lf ~/.ssh/id_rsa.pub | cut -d\  -f2 || exit 1
+fi
 
 echo "[CPGP] Running command \`$@'"
 eval $@
